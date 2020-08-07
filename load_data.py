@@ -25,14 +25,9 @@ def load_station(station, data_dir = '/home/phillipl/0_para/3_resources/noaa_ghc
     repeated_cols_index = ['value', 'mflag', 'qflag', 'sflag']*31
 
     # converting into proper long format
-    '''
-    dat.set_index(['station', 'year', 'month', 'metric'])
-    dat_mi1 = dat.set_index(['station', 'year', 'month', 'metric'])
-    dat_mi2 = pd.DataFrame(dat_mi1, columns = [days_index, repeated_cols_index])
-    dat_mi3 = dat_mi2.unstack([0,1,2,3])
-    dat_mi4 = dat_mi3.reset_index()
-    now you can
-    dat_mi4.query('metric == "TMAX" and vf == "value"')
-    '''
+    dat = dat.set_index(['station', 'year', 'month', 'metric'])
+    dat.columns = pd.MultiIndex.from_arrays([days_index, repeated_cols_index])
+    dat = dat.stack([0])
+    dat = dat.query('value != -9999 and metric in ["TMAX", "TMIN", "PRCP", "SNOW", "SNWD"]')
 
     return dat
