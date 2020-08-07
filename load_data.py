@@ -9,11 +9,16 @@ def load_station(station, data_dir = '/home/phillipl/0_para/3_resources/noaa_ghc
         station = 'USW00026617'
     input_file = data_dir + '/' + station + '.dly'
     input_file = re.sub('//', '/', input_file)
-    col_names = ['station'] + \
-                [item for t in [('v_'+str(i+1), 'f_'+str(i+1)) for i in range(31)] 
-                      for item in t]
-    dat = pd.read_table(input_file, 
-                        sep = '\s+',
-                        header = None,
-                        names = col_names)
+    repeated_cols = [('v_'+str(i+1), 
+                      'mf_'+str(i+1), 
+                      'qf_'+str(i+1), 
+                      'sf_'+str(i+1)) for i in range(31)]
+    col_names = ['station', 'year', 'month', 'metric'] + \
+                [item for t in repeated_cols for item in t]
+    repeated_col_widths = [(5,1,1,1) for i in range(31)]
+    widths = [11, 4, 2, 4] + [j for k in repeated_col_widths for j in k]
+    dat = pd.read_fwf(input_file, 
+                      widths = widths,
+                      names = col_names,
+                      header = None)
     return dat
