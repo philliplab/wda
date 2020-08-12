@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import re
 
-def load_station(station, data_dir = '/home/phillipl/0_para/3_resources/noaa_ghcnd/ghcnd_all'):
+def load_station(station = 'USW00026617', data_dir = '/home/phillipl/0_para/3_resources/noaa_ghcnd/ghcnd_all'):
     if False: # Debugging notes
         station = 'USW00026617'
     input_file = data_dir + '/' + station + '.dly'
