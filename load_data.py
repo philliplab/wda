@@ -7,6 +7,7 @@ import re
 def load_station(station = 'USW00026617', data_dir = '/home/phillipl/0_para/3_resources/noaa_ghcnd/ghcnd_all'):
     if False: # Debugging notes
         station = 'USW00026617'
+        data_dir = '/home/phillipl/0_para/3_resources/noaa_ghcnd/ghcnd_all'
     input_file = data_dir + '/' + station + '.dly'
     input_file = re.sub('//', '/', input_file)
     repeated_cols = [('v_'+str(i+1), 
@@ -25,9 +26,10 @@ def load_station(station = 'USW00026617', data_dir = '/home/phillipl/0_para/3_re
     repeated_cols_index = ['value', 'mflag', 'qflag', 'sflag']*31
 
     # converting into proper long format
-    dat = dat.set_index(['station', 'year', 'month', 'metric'])
+    dat.set_index(['station', 'year', 'month', 'metric'], inplace = True)
     dat.columns = pd.MultiIndex.from_arrays([days_index, repeated_cols_index])
     dat = dat.stack([0])
+    dat.index.rename('day', len(dat.index.names)-1, inplace = True)
     dat = dat.query('value != -9999 and metric in ["TMAX", "TMIN", "PRCP", "SNOW", "SNWD"]')
 
     return dat
