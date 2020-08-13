@@ -1,42 +1,35 @@
 import numpy as np
 import pandas as pd
 import load_data
-#import matplotlib.pyplot as plt
-#plt.show()
-
 from plotnine import ggplot, geom_point, aes, stat_smooth, facet_wrap, geom_line
-from plotnine.data import mtcars
-
-(ggplot(mtcars, aes('wt', 'mpg', color='factor(gear)'))
- + geom_point()
- + stat_smooth(method='lm')
- + facet_wrap('~gear'))
-
-
-dat = load_data.load_station()
+import plotnine as gg
 %matplotlib 
 
-# plotting by abusing the column headings
-#pdat = pd.pivot_table(
-#        dat.loc[(slice(None), np.arange(1920, 2021), slice(None), 'TMAX'), 
-#          ('value',)], 
-#  values = 'value', 
-#  index = ['year', 'month'], 
-#  aggfunc = 'mean')
-#
-#pdat.unstack('year').plot()
+dat = load_data.load_station()
 
-pdat = pd.pivot_table(
-        dat.loc[(slice(None), np.arange(1920, 2021), slice(None), 'TMAX'), 
-          ('value',)], 
-  values = 'value', 
-  index = ['year', 'month'], 
-  aggfunc = 'mean')
+# Plotting the monthly avg TMAX per decade
 
-pdat = pdat.reset_index()
+dat.reset_index(inplace = True)
 
-(ggplot(pdat, aes(x = 'month', y = 'value', color = 'factor(year)'))
- + geom_line())
-(ggplot(pdat, aes(x = 'month', y = 'value', color = 'year', group = 'year'))
- + geom_line())
-#plt.plot(
+dat['decade'] = (dat['year'] // 10) * 10
+
+decade_means = dat.query('metric == "TMAX" and decade > 1900 and decade < 2020').groupby(['decade', 'month'])['value'].aggregate(['mean']).reset_index()
+decade_means['mean_tmax'] = decade_means['mean_tmax']/10
+
+decade_means.columns = ['decade', 'month', 'mean_tmax']
+decade_means['decade'] = ['{}-{}'.format(i, i+9) for i in decade_means['decade']]
+decade_means['decade'] = decade_means['decade'].astype('category')
+
+months_labels = [i.strftime('%b') for i in pd.date_range(start = '2010-01-01', 
+    periods = 12, freq = 'M')]
+
+(ggplot(decade_means, aes(x = 'month', y = 'mean_tmax', color = 'decade', group = 'decade'))
+  + geom_line()
+  + gg.labs(x = 'Month',
+            y = 'Average of Daily Max Temp',
+            color = 'Decade')
+  + gg.scales.scale_x_continuous(breaks = list(range(1, 13)),
+      labels = months_labels)
+  + gg.theme(subplots_adjust={'right': 0.75}))
+
+
