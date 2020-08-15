@@ -5,6 +5,12 @@ import pandas as pd
 import re
 
 def load_station(station = 'USW00026617', data_dir = '/home/phillipl/0_para/3_resources/noaa_ghcnd/ghcnd_all'):
+    '''Loads the data for STATION from the file in DATA_DIR
+
+    Assumes the fwf format.
+
+    Note that all the string variables are stored in the index, so .astype('category') is not needed.
+    '''
     if False: # Debugging notes
         station = 'USW00026617'
         data_dir = '/home/phillipl/0_para/3_resources/noaa_ghcnd/ghcnd_all'
