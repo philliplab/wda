@@ -7,7 +7,8 @@ import re
 def load_station(station = 'USW00026617', data_dir = '/home/phillipl/0_para/3_resources/noaa_ghcnd/ghcnd_all'):
     '''Loads the data for STATION from the file in DATA_DIR
 
-    Assumes the fwf format.
+    Assumes the fwf format. Obtained from ftp://ftp.ncdc.noaa.gov/pub/data/ghcn/daily (ghcnd_all.tar.gz). Data described in: 
+    Menne, M.J., I. Durre, R.S. Vose, B.E. Gleason, and T.G. Houston, 2012:  An overview of the Global Historical Climatology Network-Daily Database.  Journal of Atmospheric and Oceanic Technology, 29, 897-910, doi:10.1175/JTECH-D-11-00103.1.
 
     Note that all the string variables are stored in the index, so .astype('category') is not needed.
     '''
