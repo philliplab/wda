@@ -31,11 +31,18 @@ def load_station(station = 'USW00026617', data_dir = '/home/phillipl/0_para/3_re
     days_index = [k for j in [(i, i, i, i) for i in range(31)] for k in j]
     repeated_cols_index = ['value', 'mflag', 'qflag', 'sflag']*31
 
-    # converting into proper long format
+    # converting indexes and formats 
     dat.set_index(['station', 'year', 'month', 'metric'], inplace = True)
     dat.columns = pd.MultiIndex.from_arrays([days_index, repeated_cols_index])
     dat = dat.stack([0])
     dat.index.rename('day', len(dat.index.names)-1, inplace = True)
+
+    # Remove missing values and unused metrics
     dat = dat.query('value != -9999 and metric in ["TMAX", "TMIN", "PRCP", "SNOW", "SNWD"]')
+    # Scale temperatures to whole degree instead of tenth of a degree
+    dat.loc[(slice(None), slice(None), slice(None), ['TMAX', 'TMIN'], slice(None)), ('value')] /= 10.0
 
     return dat
+
+
+
