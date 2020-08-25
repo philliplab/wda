@@ -49,5 +49,5 @@ def check_station(dat, metric, start_date = None, end_date = None):
     days_pm = pd.Series(days_pm.values, 
         index = days_pm_indx,
         name = 'perfect')
-    missing_pm = days_pm - m_counts
+    missing_pm = (days_pm - m_counts).fillna(0)
 
