@@ -50,4 +50,16 @@ def check_station(dat, metric, start_date = None, end_date = None):
         index = days_pm_indx,
         name = 'perfect')
     missing_pm = (days_pm - m_counts).fillna(0)
+    missing_pm.name = 'days_missing'
 
+def plot_missing_pm(missing_pm):
+    if False:
+        import plotnine as gg
+        from IPython import get_ipython
+        ipython = get_ipython()
+        ipython.magic('matplotlib')
+
+    missing_pm = missing_pm.reset_index()
+    missing_pm['Year.month'] = [i+j/12.0 for i, j in zip(missing_pm['year'],  missing_pm['month'])]
+    (gg.ggplot(missing_pm, gg.aes(x = 'Year.month', y = 'days_missing')) +
+        gg.geom_point())
