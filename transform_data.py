@@ -1,4 +1,4 @@
-def check_station(dat, metric, start_date = None, end_date = None):
+def check_station(dat, metric, start_date = None, end_date = None, grouping_level = 'month'):
     '''Counts the amount of missing data points.
 
     Check how many data points are missing in each calendar month and checks for each day of the year, how many years are missing data for that day.
@@ -13,9 +13,12 @@ def check_station(dat, metric, start_date = None, end_date = None):
         start_date = None
         end_date = None
 
+    if grouping_level == 'month':
+        group_by_list = ['station', 'year', 'month']
+        grouper_freq = 'M'
     counts = dat. \
         query('metric == "TMAX"'). \
-        groupby(['station', 'year', 'month']) \
+        groupby(group_by_list) \
         ['value']. \
         aggregate('count')
     counts.reset_index(level = 0, 
@@ -39,13 +42,13 @@ def check_station(dat, metric, start_date = None, end_date = None):
     all_days = pd.Series(np.ones((len(all_days_indx),)),
             index = all_days_indx)
     days = all_days. \
-            groupby(pd.Grouper(freq='M')). \
+            groupby(pd.Grouper(freq=grouper_freq)). \
             aggregate('count')
 
     days_indx = pd.MultiIndex.from_arrays([
             days.index.get_level_values(0).year,
             days.index.get_level_values(0).month], 
-        names = ['year', 'month'])
+        names = group_by_list[1:])
     days = pd.Series(days.values, 
         index = days_indx,
         name = 'perfect')
