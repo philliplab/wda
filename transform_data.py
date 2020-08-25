@@ -13,12 +13,12 @@ def check_station(dat, metric, start_date = None, end_date = None):
         start_date = None
         end_date = None
 
-    m_counts = dat. \
+    counts = dat. \
         query('metric == "TMAX"'). \
         groupby(['station', 'year', 'month']) \
         ['value']. \
         aggregate('count')
-    m_counts.reset_index(level = 0, 
+    counts.reset_index(level = 0, 
                          drop = True, 
                          inplace = True)
 
@@ -38,29 +38,29 @@ def check_station(dat, metric, start_date = None, end_date = None):
         freq = 'D')
     all_days = pd.Series(np.ones((len(all_days_indx),)),
             index = all_days_indx)
-    days_pm = all_days. \
+    days = all_days. \
             groupby(pd.Grouper(freq='M')). \
             aggregate('count')
 
-    days_pm_indx = pd.MultiIndex.from_arrays([
-            days_pm.index.get_level_values(0).year,
-            days_pm.index.get_level_values(0).month], 
+    days_indx = pd.MultiIndex.from_arrays([
+            days.index.get_level_values(0).year,
+            days.index.get_level_values(0).month], 
         names = ['year', 'month'])
-    days_pm = pd.Series(days_pm.values, 
-        index = days_pm_indx,
+    days = pd.Series(days.values, 
+        index = days_indx,
         name = 'perfect')
-    missing_pm = (days_pm - m_counts)
-    missing_pm[missing_pm.isna()] = days_pm[missing_pm.isna()]
-    missing_pm.name = 'days_missing'
+    missing = (days - counts)
+    missing[missing.isna()] = days[missing.isna()]
+    missing.name = 'days_missing'
 
-def plot_missing_pm(missing_pm):
+def plot_missing(missing):
     if False:
         import plotnine as gg
         from IPython import get_ipython
         ipython = get_ipython()
         ipython.magic('matplotlib')
 
-    missing_pm = missing_pm.reset_index()
-    missing_pm['Year.month'] = [i+j/12.0 for i, j in zip(missing_pm['year'],  missing_pm['month'])]
-    (gg.ggplot(missing_pm, gg.aes(x = 'Year.month', y = 'days_missing')) +
+    missing = missing.reset_index()
+    missing['Year.month'] = [i+j/12.0 for i, j in zip(missing['year'],  missing['month'])]
+    (gg.ggplot(missing, gg.aes(x = 'Year.month', y = 'days_missing')) +
         gg.geom_point())
