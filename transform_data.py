@@ -12,10 +12,16 @@ def check_station(dat, metric, start_date = None, end_date = None, grouping_leve
         metric = 'TMAX'
         start_date = None
         end_date = None
+        grouping_level = 'year'
+        grouping_level = 'month'
 
     if grouping_level == 'month':
         group_by_list = ['station', 'year', 'month']
         grouper_freq = 'M'
+    elif grouping_level == 'year':
+        group_by_list = ['station', 'year']
+        grouper_freq = 'Y'
+
     counts = dat. \
         query('metric == "TMAX"'). \
         groupby(group_by_list) \
@@ -45,10 +51,15 @@ def check_station(dat, metric, start_date = None, end_date = None, grouping_leve
             groupby(pd.Grouper(freq=grouper_freq)). \
             aggregate('count')
 
-    days_indx = pd.MultiIndex.from_arrays([
-            days.index.get_level_values(0).year,
-            days.index.get_level_values(0).month], 
-        names = group_by_list[1:])
+    if grouping_level == 'month':
+        days_indx = pd.MultiIndex.from_arrays([
+                days.index.get_level_values(0).year,
+                days.index.get_level_values(0).month], 
+            names = group_by_list[1:])
+    else:
+        days_indx = pd.Index(
+                days.index.get_level_values(0), 
+            name = group_by_list[-1])
     days = pd.Series(days.values, 
         index = days_indx,
         name = 'perfect')
@@ -64,6 +75,10 @@ def plot_missing(missing):
         ipython.magic('matplotlib')
 
     missing = missing.reset_index()
-    missing['Year.month'] = [i+j/12.0 for i, j in zip(missing['year'],  missing['month'])]
-    (gg.ggplot(missing, gg.aes(x = 'Year.month', y = 'days_missing')) +
+    if 'month' in missing.columns:
+        time_col = 'Year.Month'
+        missing[time_col] = [i+j/12.0 for i, j in zip(missing['year'],  missing['month'])]
+    else:
+        time_col = 'year'
+    (gg.ggplot(missing, gg.aes(x = time_col, y = 'days_missing')) +
         gg.geom_point())
