@@ -24,12 +24,14 @@ def load_station(station = 'USW00026617', data_dir = '/home/phillipl/0_para/3_re
     col_names = ['station', 'year', 'month', 'metric'] + \
                 [item for t in repeated_cols for item in t]
     repeated_col_widths = [(5,1,1,1) for i in range(31)]
-    widths = [11, 4, 2, 4] + [j for k in repeated_col_widths for j in k]
+    widths = [11, 4, 2, 4] + \
+            [j for k in repeated_col_widths for j in k]
     dat = pd.read_fwf(input_file, 
                       widths = widths,
                       names = col_names,
                       header = None)
-    days_index = [k for j in [(i+1, i+1, i+1, i+1) for i in range(31)] for k in j]
+    days_index = [k for j in [(i+1, i+1, i+1, i+1) \
+                    for i in range(31)] for k in j]
     repeated_cols_index = ['value', 'mflag', 'qflag', 'sflag']*31
 
     # converting indexes and formats 
@@ -39,7 +41,8 @@ def load_station(station = 'USW00026617', data_dir = '/home/phillipl/0_para/3_re
     dat.index.rename('day', len(dat.index.names)-1, inplace = True)
 
     # Remove missing values and unused metrics
-    dat = dat.query('value != -9999 and metric in ["TMAX", "TMIN", "PRCP", "SNOW", "SNWD"]').reorder_levels(['station', 'year', 'month', 'day', 'metric'])
+    dat = dat.query('value != -9999 and metric in ["TMAX", "TMIN", "PRCP", "SNOW", "SNWD"]'). \
+            reorder_levels(['station', 'year', 'month', 'day', 'metric'])
     dat.sort_index(inplace = True)
     assert(dat.index.is_monotonic)
     # Scale temperatures to whole degree instead of tenth of a degree
