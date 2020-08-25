@@ -29,7 +29,7 @@ def load_station(station = 'USW00026617', data_dir = '/home/phillipl/0_para/3_re
                       widths = widths,
                       names = col_names,
                       header = None)
-    days_index = [k for j in [(i, i, i, i) for i in range(31)] for k in j]
+    days_index = [k for j in [(i+1, i+1, i+1, i+1) for i in range(31)] for k in j]
     repeated_cols_index = ['value', 'mflag', 'qflag', 'sflag']*31
 
     # converting indexes and formats 
