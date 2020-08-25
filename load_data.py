@@ -39,9 +39,9 @@ def load_station(station = 'USW00026617', data_dir = '/home/phillipl/0_para/3_re
     dat.index.rename('day', len(dat.index.names)-1, inplace = True)
 
     # Remove missing values and unused metrics
-    dat = dat.query('value != -9999 and metric in ["TMAX", "TMIN", "PRCP", "SNOW", "SNWD"]')
+    dat = dat.query('value != -9999 and metric in ["TMAX", "TMIN", "PRCP", "SNOW", "SNWD"]').reorder_levels(['station', 'year', 'month', 'day', 'metric'])
     # Scale temperatures to whole degree instead of tenth of a degree
-    dat.loc[(slice(None), slice(None), slice(None), ['TMAX', 'TMIN'], slice(None)), ('value')] /= 10.0
+    dat.loc[(slice(None), slice(None), slice(None), slice(None), ['TMAX', 'TMIN']), ('value')] /= 10.0
 
     return dat
 
