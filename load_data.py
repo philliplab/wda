@@ -50,5 +50,3 @@ def load_station(station = 'USW00026617', data_dir = '/home/phillipl/0_para/3_re
 
     return dat
 
-
-

@@ -1,3 +1,6 @@
+#TODO Next up: make the first_day and last_day actually also apply to dat in check_station
+
+
 import pandas as pd
 import numpy as np
 import load_data
@@ -14,6 +17,8 @@ def check_station(dat, metric, first_day = None, last_day = None, grouping_level
         metric = 'TMAX'
         last_day = None
         first_day = None
+        first_day = '1900-01-01'
+        last_day = '2019-12-31'
         grouping_level = 'year'
         grouping_level = 'month'
 
@@ -29,7 +34,7 @@ def check_station(dat, metric, first_day = None, last_day = None, grouping_level
         groupby(group_by_list) \
         ['value']. \
         aggregate('count')
-    counts.reset_index(level = 0, 
+    counts.reset_index(level = 0, # Drop station level from index
                        drop = True, 
                        inplace = True)
 
@@ -41,10 +46,17 @@ def check_station(dat, metric, first_day = None, last_day = None, grouping_level
     if first_day is not None:
         first_day = pd.Timestamp(first_day)
     else:
-        first_day = pd.Timestamp(year = min_year, month = min_month, day = min_day)
+        first_day = pd.Timestamp(year = min_year, 
+                                 month = min_month, 
+                                 day = min_day)
     
-    last_day = pd.Timestamp(last_day) if last_day is not None else pd.Timestamp(year = max_year, month = max_month, day = max_day)
-
+    if last_day is not None:
+        last_day = pd.Timestamp(last_day)
+    else:
+        last_day = pd.Timestamp(year = max_year, 
+                                month = max_month, 
+                                day = max_day)
+    
     all_days_indx = pd.date_range(start = first_day,
         end = last_day,
         freq = 'D')
@@ -66,6 +78,7 @@ def check_station(dat, metric, first_day = None, last_day = None, grouping_level
     days = pd.Series(days.values, 
         index = days_indx,
         name = 'perfect')
+    counts = counts.reindex_like(days)
     missing = (days - counts)
     missing[missing.isna()] = days[missing.isna()]
     missing.name = 'days_missing'
@@ -79,6 +92,7 @@ def check_list_of_stations(stations = ['USW00024127', 'USW00014943', 'USW0001492
         results[station] = check_station(dat, first_day = '1900-01-01', last_day = '2019-12-31', metric = 'TMAX')
         print(station)
         print(results[station])
+    pd.concat(results) # axis = 1 puts the station names as column names
         
 
 
