@@ -3,6 +3,7 @@
 import numpy as np
 import pandas as pd
 import re
+import glob
 
 def load_station(station = 'USW00026617', data_dir = '/home/phillipl/0_para/3_resources/noaa_ghcnd/ghcnd_all'):
     '''Loads the data for STATION from the file in DATA_DIR
@@ -50,3 +51,7 @@ def load_station(station = 'USW00026617', data_dir = '/home/phillipl/0_para/3_re
 
     return dat
 
+def get_all_stations(data_dir = '/home/phillipl/0_para/3_resources/noaa_ghcnd/ghcnd_all'):
+    all_files = glob.glob(data_dir+'/*')
+    p = re.compile(data_dir+'/([^.]*)\..*$')
+    return [p.sub(r'\1', i) for i in all_files]
