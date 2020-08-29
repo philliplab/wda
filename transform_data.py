@@ -1,11 +1,22 @@
-#TODO Next up: make the first_day and last_day actually also apply to dat in check_station
+#TODO Next up: Experiment with some plots
 
 
 import pandas as pd
 import numpy as np
 import load_data
+import time
 
+def log_time(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        total_time = time.time() - start_time
+        with open('/tmp/time_log.txt', 'a') as f:
+            f.write(f'{time.time()}\t{func}\t{total_time}\n')
+        return result
+    return wrapper
 
+@log_time
 def check_station(dat, metric, first_day = None, last_day = None, grouping_level = 'month'):
     '''Counts the amount of missing data points.
 
@@ -85,14 +96,18 @@ def check_station(dat, metric, first_day = None, last_day = None, grouping_level
     return missing
 
 def check_list_of_stations(stations = ['USW00024127', 'USW00014943', 'USW00014922', 'USW00014735', 'USW00013722', 'USW00027502', 'USW00014839', 'USW00094823', 'USW00014933', 'USW00014820', 'USW00014837', 'USW00093817', 'USW00013957', 'USW00093819', 'USW00013994', 'USW00024028', 'USW00013723', 'USW00024128', 'USW00014764', 'USW00014914', 'USW00023066', 'USW00014929', 'USW00014739', 'USW00014733', 'USW00023065', 'USW00094849', 'USW00013891', 'USW00014925', 'USW00014768', 'USW00013966', 'USW00014734', 'USW00013880', 'USW00024018', 'USW00014944', 'USW00026617', 'USW00014848', 'USW00094014', 'USW00093820', 'USW00014840', 'USW00024157', 'USW00014898', 'USW00014936', 'USW00093822'][:10]):
+    stations = get_all_stations()[320:10000]
     station = 'USW00014735'
     results = {}
-    for station in stations:
+    start_time = time.time()
+    for i, station in enumerate(stations):
+        print (f'{station}\t{i}\t{len(stations)}\t{100*i/len(stations)}\t{time.time()-start_time}\n')
         dat = load_data.load_station(station = station)
-        results[station] = check_station(dat, first_day = '1900-01-01', last_day = '2019-12-31', metric = 'TMAX')
-        print(station)
-        print(results[station])
-    pd.concat(results) # axis = 1 puts the station names as column names
+        if dat.size == 0:
+            print(f'Skipping {station}')
+        else:
+            results[station] = check_station(dat, first_day = '1900-01-01', last_day = '2019-12-31', metric = 'TMAX')
+    pd.concat(results).size # axis = 1 puts the station names as column names
         
 
 
