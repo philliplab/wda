@@ -96,8 +96,8 @@ def check_station(dat, metric, first_day = None, last_day = None, grouping_level
     return missing
 
 def check_list_of_stations(stations = ['USW00024127', 'USW00014943', 'USW00014922', 'USW00014735', 'USW00013722', 'USW00027502', 'USW00014839', 'USW00094823', 'USW00014933', 'USW00014820', 'USW00014837', 'USW00093817', 'USW00013957', 'USW00093819', 'USW00013994', 'USW00024028', 'USW00013723', 'USW00024128', 'USW00014764', 'USW00014914', 'USW00023066', 'USW00014929', 'USW00014739', 'USW00014733', 'USW00023065', 'USW00094849', 'USW00013891', 'USW00014925', 'USW00014768', 'USW00013966', 'USW00014734', 'USW00013880', 'USW00024018', 'USW00014944', 'USW00026617', 'USW00014848', 'USW00094014', 'USW00093820', 'USW00014840', 'USW00024157', 'USW00014898', 'USW00014936', 'USW00093822'][:10]):
-    stations = get_all_stations()[320:10000]
-    station = 'USW00014735'
+    stations = load_data.get_all_stations()[:100]
+#    station = 'USW00014735'
     results = {}
     start_time = time.time()
     for i, station in enumerate(stations):
@@ -107,7 +107,7 @@ def check_list_of_stations(stations = ['USW00024127', 'USW00014943', 'USW0001492
             print(f'Skipping {station}')
         else:
             results[station] = check_station(dat, first_day = '1900-01-01', last_day = '2019-12-31', metric = 'TMAX')
-    pd.concat(results).size # axis = 1 puts the station names as column names
+    return results # axis = 1 puts the station names as column names
         
 
 
