@@ -8,7 +8,9 @@ ipython = get_ipython()
 ipython.magic('matplotlib')
 #%matplotlib 
 
-dat = load_data.load_station()
+station = 'USW00094789' # JFK intl AP at NYC
+
+dat = load_data.load_station(station = station)
 dat.reset_index(inplace = True)
 dat['decade'] = (dat['year'] // 10) * 10
 
@@ -65,5 +67,32 @@ latest_decades['decade'] = latest_decades['decade'].cat.remove_unused_categories
   + gg.scales.scale_x_continuous(breaks = list(range(1, 13)),
       labels = months_labels)
   + gg.theme(subplots_adjust={'right': 0.75}))
+
+
+# Number missing per year
+
+dat.isna().sum(axis=0)
+
+# histograms looks reasonable - lows range from xtox and highs range from xtox
+
+(ggplot(dat.query('metric == "TMAX" | metric == "TMIN"'), aes(x = 'value'))
+  + gg.facet_wrap('metric')
+  + gg.geom_histogram(bins = 30))
+
+by_year_missing = dat.query('metric in ("TMAX", "TMIN")').groupby(['year', 'metric'])['value'].aggregate(count = ('value', 'count')).reset_index()
+
+# While there are records as early as late 1940s, they are only consistent after 1960
+
+(ggplot(by_year_missing, aes(x = 'year', y = 'count'))
+  + geom_point())
+
+by_year_missing.query('year < 1961').set_index(['year', 'metric']).unstack('metric')/3.65
+
+by_year_avg = dat.query('year >= 1960 & metric in ("TMIN", "TMAX")').groupby(['year', 'metric'])['value'].aggregate(avg = ('value', 'mean')).reset_index()
+
+(ggplot(by_year_avg, aes(x = 'year', y = 'avg', color = 'metric', group = 'metric'))
+  + gg.geom_point()
+  + gg.geom_smooth(method = 'lm')
+  + gg.theme(subplots_adjust = {'right' : 0.75}))
 
 
