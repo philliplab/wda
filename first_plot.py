@@ -88,11 +88,14 @@ by_year_missing = dat.query('metric in ("TMAX", "TMIN")').groupby(['year', 'metr
 
 by_year_missing.query('year < 1961').set_index(['year', 'metric']).unstack('metric')/3.65
 
-by_year_avg = dat.query('year >= 1960 & metric in ("TMIN", "TMAX")').groupby(['year', 'metric'])['value'].aggregate(avg = ('value', 'mean')).reset_index()
+by_year_avg = dat.query('year >= 1960 & year < 2020 & metric in ("TMIN", "TMAX")').groupby(['year', 'metric'])['value'].aggregate(avg = ('value', 'mean')).reset_index()
 
 (ggplot(by_year_avg, aes(x = 'year', y = 'avg', color = 'metric', group = 'metric'))
   + gg.geom_point()
-  + gg.geom_smooth(method = 'lm')
-  + gg.theme(subplots_adjust = {'right' : 0.75}))
+  + gg.geom_smooth(method = 'lm', se = False)
+  + gg.theme(subplots_adjust = {'right' : 0.75})
+  + gg.labs(color = 'Metric',
+            x = 'Year',
+            y = 'Average of Metric for the Year'))
 
 
