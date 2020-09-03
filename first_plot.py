@@ -75,16 +75,21 @@ dat.isna().sum(axis=0)
 
 # histograms looks reasonable - lows range from xtox and highs range from xtox
 
-(ggplot(dat.query('metric == "TMAX" | metric == "TMIN"'), aes(x = 'value'))
+(ggplot(dat.query('metric == "TMAX" | metric == "TMIN"'), 
+    aes(x = 'value', y = 'stat(count)'))
   + gg.facet_wrap('metric')
-  + gg.geom_histogram(bins = 30))
+  + gg.geom_histogram(bins = 30)
+  + gg.labs(x = 'Temperature',
+            y = 'Number of Observations'))
 
 by_year_missing = dat.query('metric in ("TMAX", "TMIN")').groupby(['year', 'metric'])['value'].aggregate(count = ('value', 'count')).reset_index()
 
 # While there are records as early as late 1940s, they are only consistent after 1960
 
 (ggplot(by_year_missing, aes(x = 'year', y = 'count'))
-  + geom_point())
+  + geom_point()
+  + gg.labs(x = 'Year',
+            y = 'Number of Observations in Year'))
 
 by_year_missing.query('year < 1961').set_index(['year', 'metric']).unstack('metric')/3.65
 
