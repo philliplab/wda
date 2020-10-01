@@ -9,7 +9,7 @@ ipython.magic('matplotlib')
 from plotnine import ggplot, geom_point, aes, stat_smooth, facet_wrap, geom_line
 import plotnine as gg
 
-save_img = True
+save_img = False
 out_dir = '/home/phillipl/0_para/1_projects/wda/posts/p011'
 
 station = 'USW00094789' # JFK intl AP at NYC
@@ -50,8 +50,9 @@ obs_per_year
 if save_img:
     obs_per_year.save(out_dir + '/obs_per_year.png')
 
-
-(by_year_missing.query('year < 1961').set_index(['year', 'metric']).unstack('metric')).round(1)
+bla = \
+(by_year_missing.query('year < 1961').set_index(['year', 'metric']).unstack('metric')).round(1).to_markdown()
+bla.split('\n')
 
 by_year_avg = dat.query('year >= 1960 & year < 2020 & metric in ("TMIN", "TMAX")').groupby(['year', 'metric'])['value'].aggregate(avg = ('value', 'mean')).reset_index()
 
@@ -95,9 +96,10 @@ daily_avgs
 if save_img:
     daily_avgs.save(out_dir + '/daily_avgs.png')
 
+bla = \
+pd.DataFrame({'lag':range(1,11),'cor':[round(dat.query('year >= 1960 & year < 2020 & metric in ("TMAX")')['value'].autocorr(i),3) for i in range(1,11)]}).to_markdown()
 
-pd.DataFrame({'lag':range(1,11),'cor':[round(dat.query('year >= 1960 & year < 2020 & metric in ("TMAX")')['value'].autocorr(i),3) for i in range(1,11)]})
-
+bla.split('\n')
 
 
 
